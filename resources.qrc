@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>images/player1Bishop.png</file>
+        <file>images/player1Horse.png</file>
+        <file>images/player1King.png</file>
+        <file>images/player1Pawn.png</file>
+        <file>images/player1Queen.png</file>
+        <file>images/player1Rok.png</file>
+        <file>images/player2Bishop.png</file>
+        <file>images/player2Horse.png</file>
+        <file>images/player2King.png</file>
+        <file>images/player2Pawn.png</file>
+        <file>images/player2Queen.png</file>
+        <file>images/player2Rok.png</file>
+        <file>images/chessBoard.jpg</file>
+    </qresource>
+    <qresource prefix="/conf">
+        <file>conf.txt</file>
+    </qresource>
+</RCC>
