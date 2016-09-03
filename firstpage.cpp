@@ -21,6 +21,7 @@ void firstPage::on_play_clicked()
 {
     QRect geo;
     playWindow = new MainWindow;
+    //mod playwindow postion
     geo = this->geometry();
     geo.setWidth(800);
     geo.setHeight(650);
