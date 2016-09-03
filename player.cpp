@@ -8,6 +8,7 @@ player::player(QWidget *parent) : QMainWindow(parent)
 bool player::playerTurn = true;
 bool player::KingDanger =false;
 bool player::canCapture =false;
+bool player::gameOver =false;
 void player::setPiecesName(std::initializer_list<string> argv)
 {
     int j=0;
@@ -46,7 +47,7 @@ void player::setPiecesImage(std::initializer_list<QPixmap> argv)
     }
 }
 
-bool player::rokLimits(int x, int y, int pieceX, int pieceY, int p, QPoint *T)
+bool player::rockLimits(int x, int y, int pieceX, int pieceY, int p, QPoint *T)
 {
     int minX=1000,minY=1000,maxX=0,maxY=0;
     if(x == pieceX || y == pieceY){
@@ -113,6 +114,16 @@ bool player::bishopLimits(int x, int y, int pieceX, int pieceY, int p, QPoint *T
                return false;
 }
 
+bool player::queenLimits(int x, int y, int pieceX, int pieceY, int p, QPoint *T,int i)
+{
+    if(rockLimits(x,y,pieceX,pieceY,i,T) && rockLimits(x,y,pieceX,pieceY,p,piecesPosition)){
+        return true;}
+    if(bishopLimits(x,y,pieceX,pieceY,i,T) && bishopLimits(x,y,pieceX,pieceY,p,piecesPosition))
+        return true;
+    if(kingLimits(x,y,pieceX,pieceY))
+        return true;
+    return false;
+}
 bool player::kingLimits(int x, int y, int pieceX, int pieceY)
 {
     if((pieceY ==y && (pieceX ==x+70 || pieceX == x-70))||(pieceY ==y+70 && (pieceX ==x+70 || pieceX == x-70 || pieceX == x))
@@ -122,7 +133,7 @@ bool player::kingLimits(int x, int y, int pieceX, int pieceY)
         return false;
 }
 
-bool player::horseLimits(int x, int y, int pieceX, int pieceY)
+bool player::knightLimits(int x, int y, int pieceX, int pieceY)
 {
     if((pieceY == y -140 && (pieceX == x-70 || pieceX == x+70)) || (pieceY == y -70 && (pieceX == x-140 || pieceX == x+140))
             ||(pieceY == y +140 && (pieceX == x+70 || pieceX == x-70)) || (pieceY == y +70 && (pieceX == x-140 || pieceX == x+140)))
@@ -216,19 +227,21 @@ bool player::pawnCapture(int x, int y, int pieceX, int pieceY)
     return false;
 }
 
-bool player::kingReset(int x, int y, QPoint *T)
+bool player::kingReset(int x, int y,QPoint *T,int cpId)
 {
-    if(rokLimits(x,y,T[0].x(),T[0].y(),4,piecesPosition) && rokLimits(x,y,T[0].x(),T[0].y(),0,T))
+    if(rockLimits(x,y,T[0].x(),T[0].y(),cpId,piecesPosition) && rockLimits(x,y,T[0].x(),T[0].y(),0,T))
         return true;
-    if(rokLimits(x,y,T[7].x(),T[7].y(),4,piecesPosition) && rokLimits(x,y,T[7].x(),T[7].y(),7,T))
+    if(rockLimits(x,y,T[7].x(),T[7].y(),cpId,piecesPosition) && rockLimits(x,y,T[7].x(),T[7].y(),0,T))
         return true;
-    if(bishopLimits(x,y,T[2].x(),T[2].y(),4,piecesPosition) && bishopLimits(x,y,T[2].x(),T[2].y(),2,T))
+    if(bishopLimits(x,y,T[2].x(),T[2].y(),cpId,piecesPosition) && bishopLimits(x,y,T[2].x(),T[2].y(),-1,T))
         return true;
-    if(bishopLimits(x,y,T[5].x(),T[5].y(),4,piecesPosition) && bishopLimits(x,y,T[5].x(),T[5].y(),5,T))
+    if(bishopLimits(x,y,T[5].x(),T[5].y(),cpId,piecesPosition) && bishopLimits(x,y,T[5].x(),T[5].y(),-1,T))
         return true;
-    if(horseLimits(x,y,T[1].x(),T[1].y()))
+    if(knightLimits(x,y,T[1].x(),T[1].y()))
         return true;
-    if(horseLimits(x,y,T[6].x(),T[6].y()))
+    if(knightLimits(x,y,T[6].x(),T[6].y()))
+        return true;
+    if(queenLimits(x,y,T[3].x(),T[3].y(),cpId,T,3))
         return true;
     for(int i=8;i<16;i++){
         if(pawnProm[i-8] == -1){
@@ -236,39 +249,40 @@ bool player::kingReset(int x, int y, QPoint *T)
                 return true;
         }
         else if(pawnProm[i-8] == 0){
-            if(rokLimits(x,y,T[i].x(),T[i].y(),4,piecesPosition) && rokLimits(x,y,T[i].x(),T[i].y(),i,T))
+            if(rockLimits(x,y,T[i].x(),T[i].y(),cpId,piecesPosition) && rockLimits(x,y,T[i].x(),T[i].y(),i,T))
                 return true;
         }
         else if(pawnProm[i-8] == 1){
-            if(horseLimits(x,y,T[i].x(),T[i].y()))
+            if(knightLimits(x,y,T[i].x(),T[i].y()))
                 return true;
         }
         else if(pawnProm[i-8] == 2){
-            if(bishopLimits(x,y,T[i].x(),T[i].y(),4,piecesPosition) && bishopLimits(x,y,T[i].x(),T[i].y(),i,T))
+            if(bishopLimits(x,y,T[i].x(),T[i].y(),cpId,piecesPosition) && bishopLimits(x,y,T[i].x(),T[i].y(),i,T))
+                return true;
+        }
+        else if(pawnProm[i-8] == 3){
+            if(queenLimits(x,y,T[i].x(),T[i].y(),cpId,T,i))
                 return true;
         }
     }
     return false;
 }
 
-bool player::KingWarning(QPoint *T)
+bool player::enemyKingCanBeCaptured(int x, int y, QPoint *T,int cpId)
 {
-    int x = T[4].x(),y = T[4].y();
-    if(rokLimits(x,y,piecesPosition[0].x(),piecesPosition[0].y(),0,piecesPosition)
-            && rokLimits(x,y,piecesPosition[0].x(),piecesPosition[0].y(),4,T))
+    if(rockLimits(x,y,piecesPosition[0].x(),piecesPosition[0].y(),0,piecesPosition) && rockLimits(x,y,piecesPosition[0].x(),piecesPosition[0].y(),-1,T) && cpId != 0)
         return true;
-    if(rokLimits(x,y,piecesPosition[7].x(),piecesPosition[7].y(),7,piecesPosition)
-            && rokLimits(x,y,piecesPosition[7].x(),piecesPosition[7].y(),4,T))
+    if(rockLimits(x,y,piecesPosition[7].x(),piecesPosition[7].y(),7,piecesPosition) && rockLimits(x,y,piecesPosition[7].x(),piecesPosition[7].y(),-1,T) && cpId != 7)
         return true;
-    if(bishopLimits(x,y,piecesPosition[2].x(),piecesPosition[2].y(),2,piecesPosition)
-            && bishopLimits(x,y,piecesPosition[2].x(),piecesPosition[2].y(),4,T))
+    if(bishopLimits(x,y,piecesPosition[2].x(),piecesPosition[2].y(),2,piecesPosition) && bishopLimits(x,y,piecesPosition[2].x(),piecesPosition[2].y(),4,T) && cpId != 2)
         return true;
-    if(bishopLimits(x,y,piecesPosition[5].x(),piecesPosition[5].y(),5,T)
-            && bishopLimits(x,y,piecesPosition[5].x(),piecesPosition[5].y(),4,T))
+    if(bishopLimits(x,y,piecesPosition[5].x(),piecesPosition[5].y(),5,piecesPosition) && bishopLimits(x,y,piecesPosition[5].x(),piecesPosition[5].y(),4,T) && cpId != 5)
         return true;
-    if(horseLimits(x,y,piecesPosition[1].x(),piecesPosition[1].y()))
+    if(knightLimits(x,y,piecesPosition[1].x(),piecesPosition[1].y()))
         return true;
-    if(horseLimits(x,y,piecesPosition[6].x(),piecesPosition[6].y()))
+    if(knightLimits(x,y,piecesPosition[6].x(),piecesPosition[6].y()))
+        return true;
+    if(queenLimits(x,y,piecesPosition[3].x(),piecesPosition[3].y(),3,T,-1) && cpId != 3)
         return true;
     for(int i=8;i<16;i++){
         if(pawnProm[i-8] == -1){
@@ -276,22 +290,237 @@ bool player::KingWarning(QPoint *T)
                 return true;
         }
         else if(pawnProm[i-8] == 0){
-                if(rokLimits(x,y,piecesPosition[i].x(),piecesPosition[i].y(),i,piecesPosition)
-                        && rokLimits(x,y,piecesPosition[i].x(),piecesPosition[i].y(),4,T))
-                    return true;
+            if(rockLimits(x,y,piecesPosition[i].x(),piecesPosition[i].y(),i,piecesPosition) && rockLimits(x,y,piecesPosition[i].x(),piecesPosition[i].y(),cpId,T) && cpId != i)
+                return true;
         }
         else if(pawnProm[i-8] == 1){
-            if(horseLimits(x,y,piecesPosition[i].x(),piecesPosition[i].y()))
-            return true;
+            if(knightLimits(x,y,piecesPosition[i].x(),piecesPosition[i].y()))
+                return true;
+        }
+        else if(pawnProm[i-8] == 2){
+            if(bishopLimits(x,y,piecesPosition[i].x(),piecesPosition[i].y(),i,piecesPosition) && bishopLimits(x,y,piecesPosition[i].x(),piecesPosition[i].y(),cpId,T) && cpId != i)
+                return true;
+        }
+        else if(pawnProm[i-8] == 3){
+            if(queenLimits(x,y,piecesPosition[i].x(),piecesPosition[i].y(),i,T,cpId) && cpId != i)
+                return true;
+        }
+    }
+    return false;
+}
+
+int player::KingWarning(QPoint *T)
+{
+    int x = T[4].x(),y = T[4].y();
+    if(rockLimits(x,y,piecesPosition[0].x(),piecesPosition[0].y(),0,piecesPosition)
+            && rockLimits(x,y,piecesPosition[0].x(),piecesPosition[0].y(),4,T))
+        return 0;
+    if(rockLimits(x,y,piecesPosition[7].x(),piecesPosition[7].y(),7,piecesPosition)
+            && rockLimits(x,y,piecesPosition[7].x(),piecesPosition[7].y(),4,T))
+        return 7;
+    if(bishopLimits(x,y,piecesPosition[2].x(),piecesPosition[2].y(),2,piecesPosition)
+            && bishopLimits(x,y,piecesPosition[2].x(),piecesPosition[2].y(),4,T))
+        return 2;
+    if(bishopLimits(x,y,piecesPosition[5].x(),piecesPosition[5].y(),5,T)
+            && bishopLimits(x,y,piecesPosition[5].x(),piecesPosition[5].y(),4,T))
+        return 5;
+    if(knightLimits(x,y,piecesPosition[1].x(),piecesPosition[1].y()))
+        return 1;
+    if(knightLimits(x,y,piecesPosition[6].x(),piecesPosition[6].y()))
+        return 6;
+    if(queenLimits(x,y,piecesPosition[3].x(),piecesPosition[3].y(),3,T,4)){
+        return 3;}
+    for(int i=8;i<16;i++){
+        if(pawnProm[i-8] == -1){
+            if(pawnCapture(x,y,piecesPosition[i].x(),piecesPosition[i].y()))
+                return i;
+        }
+        else if(pawnProm[i-8] == 0){
+                if(rockLimits(x,y,piecesPosition[i].x(),piecesPosition[i].y(),i,piecesPosition)
+                        && rockLimits(x,y,piecesPosition[i].x(),piecesPosition[i].y(),4,T))
+                    return 0;
+        }
+        else if(pawnProm[i-8] == 1){
+            if(knightLimits(x,y,piecesPosition[i].x(),piecesPosition[i].y()))
+            return 1;
         }
         else if(pawnProm[i-8] == 2){
             if(bishopLimits(x,y,piecesPosition[i].x(),piecesPosition[i].y(),i,piecesPosition)
                 && bishopLimits(x,y,piecesPosition[i].x(),piecesPosition[i].y(),4,T))
-            return true;
+            return 2;
+        }
+        else if(pawnProm[i-8] == 3){
+            if(queenLimits(x,y,piecesPosition[i].x(),piecesPosition[i].y(),3,T,4))
+                return 3;
         }
 
     }
-    return false;
+    return -1;
+}
+
+bool player::gameOver_1(QPoint enemyKing, QPoint *enemy, int KingWarningPiece)
+{
+    bool cantMouve = false;
+    int id = -1;
+    int x = enemyKing.x(), y = enemyKing.y(),xEnemy = piecesPosition[KingWarningPiece].x(),yEnemy = piecesPosition[KingWarningPiece].y();
+    if(kingReset(xEnemy,yEnemy,enemy,KingWarningPiece)) // if enemy piece can be captured then game is not over
+        return false;
+    if(kingLimits(xEnemy,yEnemy,x,y))
+        id = KingWarningPiece;
+    // testing the enemy's king mouvement possiblities
+    if(y>50){
+        for(int i = x-70;i<x+70;i+=70){
+            if(i>=130 && i<=620){
+                int j =0;
+                cantMouve = false;
+                while(j<16 && !cantMouve){
+                    if(enemy[j].x() == i && enemy[j].y() == y-70 && j != 4)
+                        cantMouve = true;
+                    else
+                        j++;
+                }
+                if(!cantMouve){
+                    if(!enemyKingCanBeCaptured(i,y-70,enemy,id))
+                        return false;
+                }
+            }
+        }
+        cantMouve = false;
+    }
+    if(x>130){
+        int j =0;
+        while(j<16 && ! cantMouve){
+            if(enemy[j].x() == x-70 && enemy[j].y() == y && j != 4)
+                cantMouve = true;
+            else
+                j++;
+        }
+        if(!cantMouve){
+            if(!enemyKingCanBeCaptured(x-70,y,enemy,id))
+                return false;
+        }
+    }
+    cantMouve = false;
+    if(x<620){
+        int j=0;
+        while(j<16 && !cantMouve){
+            if(enemy[j].x() == x+70 && enemy[j].y() == y && j != 4)
+                cantMouve = true;
+            else
+                j++;
+        }
+        if(!cantMouve){
+            if(!enemyKingCanBeCaptured(x+70,y,enemy,id))
+                return false;
+        }
+    }
+    if(y<540){
+        for(int i=x+70;i<x+70;i+=70){
+            if(i>=130 && i<=620){
+                cantMouve = false;
+                int j=0;
+                while(j<16 && !cantMouve){
+                    if(enemy[j].x() == i && enemy[j].y() == y+70 && j != 4)
+                        cantMouve = true;
+                    else
+                        j++;
+                }
+                if(!cantMouve){
+                    if(!kingReset(i,y+70,enemy,id))
+                        return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+bool player::gameOver_2(QPoint *enemy)
+{
+    int x = enemy[4].x(), y = enemy[4].y();
+    for(int i=0;i<16;i++){
+        if(i!=4){
+            if(enemy[i] != QPoint(0,0) )
+                return false;
+        }
+    }
+    // testing the enemy's king mouvement possiblities
+    if(y>50){
+        for(int i = x-70;i<x+70;i+=70){
+            if(i>=130 && i<=620){
+                if(!enemyKingCanBeCaptured(i,y-70,enemy,-1))
+                    return false;
+                }
+            }
+        }
+    if(x>130){
+        if(!enemyKingCanBeCaptured(x-70,y,enemy,-1))
+                return false;
+        }
+    if(x<620){
+        if(!enemyKingCanBeCaptured(x+70,y,enemy,-1))
+                return false;
+        }
+    if(y<540){
+        for(int i=x+70;i<x+70;i+=70){
+            if(i>=130 && i<=620){
+                if(!kingReset(i,y+70,enemy,-1))
+                    return false;
+                }
+            }
+        }
+    return true;
+}
+
+bool player::castling(QPoint *enemy, int cpId,int j)
+{
+    int x = piecesPosition[4].x(),y = piecesPosition[4].y();
+    if(cpId == 0 || cpId == 7){
+        int pieceX = piecesPosition[cpId].x(),pieceY = piecesPosition[cpId].y();
+        if(!kingFirstMouve && kingNeverChecked){
+            if(cpId == 0 && !rockFirstMouve0){
+                if(rockLimits(x,y,pieceX,pieceY,4,piecesPosition) &&
+                        rockLimits(x,y,pieceX,pieceY,-1,enemy)){
+                    pieces[cpId]->setGeometry(x-70,y,70,70);
+                    pieces[4]->setGeometry(x-140,y,70,70);
+                    playerTurn = !playerTurn;
+                    kingFirstMouve = true;
+                    rockFirstMouve0 = true;
+                }
+            }
+            else if(cpId == 7 && !rockFirstMouve7){
+                if(rockLimits(x,y,pieceX,pieceY,4,piecesPosition) &&
+                        rockLimits(x,y,pieceX,pieceY,-1,enemy)){
+                    pieces[cpId]->setGeometry(x+70,y,70,70);
+                    pieces[4]->setGeometry(x+140,y,70,70);
+                    playerTurn = !playerTurn;
+                    kingFirstMouve = true;
+                    rockFirstMouve7 = true;
+                }
+            }
+        }
+    }
+    else{
+        int pieceX = piecesPosition[j].x(),pieceY = piecesPosition[j].y();
+        if(!kingFirstMouve && kingNeverChecked){
+            if(rockLimits(x,y,pieceX,pieceY,4,piecesPosition) && rockLimits(x,y,pieceX,pieceY,-1,enemy)){
+                if(j == 0 && !rockFirstMouve0){
+                    pieces[j]->setGeometry(x-70,y,70,70);
+                    pieces[4]->setGeometry(x-140,y,70,70);
+                    playerTurn = !playerTurn;
+                    kingFirstMouve = true;
+                    rockFirstMouve0 = true;
+                }
+                else if(j == 7 && !rockFirstMouve7){
+                    pieces[j]->setGeometry(x+70,y,70,70);
+                    pieces[4]->setGeometry(x+140,y,70,70);
+                    playerTurn = !playerTurn;
+                    kingFirstMouve = true;
+                    rockFirstMouve7 = true;
+                }
+            }
+        }
+    }
 }
 
 void player::pawnPromotion()
@@ -328,7 +557,7 @@ void player::reset()
 
 void player::capturePiece(int x, int y,QLabel *piece, int id,QPoint *T,int j,int cpId)
 {
-    int pieceX = piecesPosition[cpId].x() , pieceY = piecesPosition[cpId].y();
+    int pieceX = piecesPosition[cpId].x() , pieceY = piecesPosition[cpId].y(),KingWarningPiece;
     bool kingInDanger = false;
     canCapture = false;
     QPoint capturedPiecePoint = T[j];
@@ -336,17 +565,21 @@ void player::capturePiece(int x, int y,QLabel *piece, int id,QPoint *T,int j,int
     xReset =piece->x();yReset=piece->y();
     pieceReset = piece;
         if(id == 0 || id == 7){
-            if(rokLimits(x,y,pieceX,pieceY,id,piecesPosition) && rokLimits(x,y,pieceX,pieceY,j,T)){
+            if(rockLimits(x,y,pieceX,pieceY,id,piecesPosition) && rockLimits(x,y,pieceX,pieceY,j,T)){
                      playerTurn = !playerTurn;
                     piece->setGeometry(x,y,70,70);
                     canCapture = true;
+                    piece->setGeometry(x,y,70,70);
+                    if(cpId == 0)
+                        rockFirstMouve0 = true;
+                    else if(cpId == 7)
+                        rockFirstMouve7 = true;
                  }
            }
         else if(id == 2 || id== 5){
                 if(bishopLimits(x,y,pieceX,pieceY,-1,piecesPosition) && bishopLimits(x,y,pieceX,pieceY,-1,T)){
                     playerTurn = !playerTurn;
                     canCapture = true;
-                    cout<<"AAA"<<endl;
                 piece->setGeometry(x,y,70,70);
          }
         }
@@ -355,19 +588,18 @@ void player::capturePiece(int x, int y,QLabel *piece, int id,QPoint *T,int j,int
                 playerTurn = !playerTurn;
                 canCapture = true;
                 piece->setGeometry(x,y,70,70);
+                kingFirstMouve = true;
             }
         }
         else if(id == 3){
-            if((bishopLimits(x,y,pieceX,pieceY,id,piecesPosition) && bishopLimits(x,y,pieceX,pieceY,j,T))
-                    || (rokLimits(x,y,pieceX,pieceY,id,piecesPosition) && rokLimits(x,y,pieceX,pieceY,j,T))
-                    || kingLimits(x,y,pieceX,pieceY)){
+            if(queenLimits(x,y,pieceX,pieceY,3,T,j)){
                 canCapture = true;
                 playerTurn = !playerTurn;
                piece->setGeometry(x,y,70,70);
             }
         }
         else if(id == 1 || id == 6){
-            if(horseLimits(x,y,pieceX,pieceY)){
+            if(knightLimits(x,y,pieceX,pieceY)){
                 canCapture = true;
                 playerTurn = !playerTurn;
                piece->setGeometry(x,y,70,70);
@@ -394,7 +626,7 @@ void player::capturePiece(int x, int y,QLabel *piece, int id,QPoint *T,int j,int
     playerTurn = !playerTurn;
     piecesPosition[cpId] = piece->pos();
 
-    if(kingReset(piecesPosition[4].x(),piecesPosition[4].y(),T)){
+    if(kingReset(piecesPosition[4].x(),piecesPosition[4].y(),T,4)){
         playerTurn = !playerTurn;
         kingInDanger = true;
         canCapture = false;
@@ -405,24 +637,38 @@ void player::capturePiece(int x, int y,QLabel *piece, int id,QPoint *T,int j,int
     else{
         KingDanger = false;
     }
-    if(KingWarning(T)){
+    KingWarningPiece = KingWarning(T);
+    if(KingWarningPiece != -1){
         KingDanger = true;
+        if(gameOver_1(T[4],T,KingWarningPiece))
+            gameOver = true;
+        kingNeverChecked = false;
+    }
+    else{
+        if(gameOver_2(T))
+            gameOver = true;
     }
      T[j] = capturedPiecePoint;
      pawnPromotion();
+
 }
 
 void player::mouvePiece(int x, int y, QLabel *piece, int id,QPoint *T,int cpId)
 {
 
-    int pieceX = piece->x() , pieceY = piece->y();
+    int pieceX = piece->x() , pieceY = piece->y(),KingWarningPiece;
     bool kingInDanger = false;
+
     xReset =piece->x();yReset=piece->y();
     pieceReset = piece;
         if(id == 0 || id == 7){
-            if(rokLimits(x,y,pieceX,pieceY,-1,piecesPosition)&& rokLimits(x,y,pieceX,pieceY,-1,T)){
+            if(rockLimits(x,y,pieceX,pieceY,-1,piecesPosition)&& rockLimits(x,y,pieceX,pieceY,-1,T)){
                      playerTurn = !playerTurn;
                     piece->setGeometry(x,y,70,70);
+                    if(cpId == 0)
+                        rockFirstMouve0 = true;
+                    else if(cpId == 7)
+                        rockFirstMouve7 = true;
                  }
            }
         else if(id == 2 || id== 5){
@@ -433,9 +679,7 @@ void player::mouvePiece(int x, int y, QLabel *piece, int id,QPoint *T,int cpId)
          }
         }
         else if(id == 3){
-            if((rokLimits(x,y,pieceX,pieceY,-1,piecesPosition)&& rokLimits(x,y,pieceX,pieceY,-1,T)) ||
-                bishopLimits(x,y,pieceX,pieceY,-1,piecesPosition) && bishopLimits(x,y,pieceX,pieceY,-1,T) ||
-                kingLimits(x,y,pieceX,pieceY)){
+            if(queenLimits(x,y,pieceX,pieceY,3,T,-1)){
                 playerTurn = !playerTurn;
                piece->setGeometry(x,y,70,70);
             }
@@ -444,25 +688,17 @@ void player::mouvePiece(int x, int y, QLabel *piece, int id,QPoint *T,int cpId)
             if(kingLimits(x,y,pieceX,pieceY)){
                 playerTurn = !playerTurn;
                 piece->setGeometry(x,y,70,70);
+                kingFirstMouve = true;
             }
         }
         else if(id == 1 || id == 6){
-            if(horseLimits(x,y,pieceX,pieceY)){
+            if(knightLimits(x,y,pieceX,pieceY)){
                 playerTurn = !playerTurn;
                piece->setGeometry(x,y,70,70);
             }
         }
-//        else{
-//            if(pawnProm[cpId-8] == -1){
-//                if(pawnLimits(x,y,pieceX,pieceY,id,piecesPosition)){
-//                    playerTurn = !playerTurn;
-//                        piece->setGeometry(x,y,70,70);
-//                }
-//            }
-
-//        }
     piecesPosition[cpId] = piece->pos();
-    if(kingReset(pieces[4]->x(),pieces[4]->y(),T)){
+    if(kingReset(pieces[4]->x(),pieces[4]->y(),T,4)){
         playerTurn = !playerTurn;
         kingInDanger = true;
         QTimer::singleShot(500,this, SLOT(reset()));
@@ -470,17 +706,25 @@ void player::mouvePiece(int x, int y, QLabel *piece, int id,QPoint *T,int cpId)
         }
     else
         KingDanger =false;
-    if(KingWarning(T)){
+    KingWarningPiece = KingWarning(T);
+    if(KingWarningPiece != -1){
         KingDanger =true;
+        if(gameOver_1(T[4],T,KingWarningPiece))
+            gameOver = true;
+    }
+    else{
+        if(gameOver_2(T))
+            gameOver = true;
     }
     playerTurn = !playerTurn;
     pawnPromotion();
+
 
 }
 
 void player::mouvePawn(int x, int y, QLabel *piece, int pos, int cpId,QPoint *enemy, int enemyPawn)
 {
-    int pieceX = piece->x() , pieceY = piece->y();
+    int pieceX = piece->x() , pieceY = piece->y(),KingWarningPiece;
     xReset =piece->x();yReset=piece->y();
     canCapture = false;
     pieceReset = piece;
@@ -494,7 +738,7 @@ void player::mouvePawn(int x, int y, QLabel *piece, int pos, int cpId,QPoint *en
         }
     }
     piecesPosition[cpId] = piece->pos();
-    if(kingReset(pieces[4]->x(),pieces[4]->y(),enemy)){
+    if(kingReset(pieces[4]->x(),pieces[4]->y(),enemy,4)){
         playerTurn = !playerTurn;
         kingInDanger = true;
         QTimer::singleShot(500,this, SLOT(reset()));
@@ -502,9 +746,17 @@ void player::mouvePawn(int x, int y, QLabel *piece, int pos, int cpId,QPoint *en
         }
     else
         KingDanger =false;
-    if(KingWarning(enemy)){
+    KingWarningPiece = KingWarning(enemy);
+    if(KingWarningPiece != -1){
         KingDanger =true;
+        if(gameOver_1(enemy[4],enemy,KingWarningPiece))
+            gameOver = true;
     }
-//    playerTurn = !playerTurn;
+    else{
+        if(gameOver_2(enemy))
+            gameOver = true;
+    }
+    playerTurn = !playerTurn;
     pawnPromotion();
+
 }

@@ -11,9 +11,9 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Chess Game</string>
   </property>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="conf">
    <property name="geometry">
     <rect>
      <x>260</x>
@@ -26,7 +26,7 @@
     <string>Config</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_2">
+  <widget class="QPushButton" name="play">
    <property name="geometry">
     <rect>
      <x>260</x>
@@ -39,7 +39,7 @@
     <string>Play</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_3">
+  <widget class="QPushButton" name="quit">
    <property name="geometry">
     <rect>
      <x>260</x>

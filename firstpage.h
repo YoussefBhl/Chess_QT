@@ -15,12 +15,15 @@ class firstPage : public QWidget
 public:
     explicit firstPage(QWidget *parent = 0);
     ~firstPage();
-
+    bool quit = false;
 private slots:
-    void on_pushButton_2_clicked();
-    void on_pushButton_clicked();
+    void on_play_clicked();
+    void on_conf_clicked();
     void save_clicked();
+    void openingWindow();
     void cancel_clicked();
+    void on_quit_clicked();
+
 private:
     Ui::firstPage *ui;
     MainWindow *playWindow;

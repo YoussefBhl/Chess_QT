@@ -14,13 +14,13 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Chess Game</string>
   </property>
   <property name="animated">
    <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="mouseEvent" name="player1Rok1">
+   <widget class="mouseEvent" name="player1Rock1">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -54,7 +54,7 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="mouseEvent" name="player1Horse1">
+   <widget class="mouseEvent" name="player1Knight1">
     <property name="geometry">
      <rect>
       <x>200</x>
@@ -164,7 +164,7 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="mouseEvent" name="player1Horse2">
+   <widget class="mouseEvent" name="player1Knight2">
     <property name="geometry">
      <rect>
       <x>550</x>
@@ -186,7 +186,7 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="mouseEvent" name="player1Rok2">
+   <widget class="mouseEvent" name="player1Rock2">
     <property name="geometry">
      <rect>
       <x>620</x>
@@ -465,7 +465,7 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="mouseEvent" name="player2Rok2">
+   <widget class="mouseEvent" name="player2Rock2">
     <property name="geometry">
      <rect>
       <x>620</x>
@@ -534,7 +534,7 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="mouseEvent" name="player2Rok1">
+   <widget class="mouseEvent" name="player2Rock1">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -737,7 +737,7 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="mouseEvent" name="player2Horse2">
+   <widget class="mouseEvent" name="player2Knight2">
     <property name="geometry">
      <rect>
       <x>550</x>
@@ -759,7 +759,7 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="mouseEvent" name="player2Horse1">
+   <widget class="mouseEvent" name="player2Knight1">
     <property name="geometry">
      <rect>
       <x>200</x>
@@ -806,10 +806,10 @@
    <widget class="QLabel" name="message">
     <property name="geometry">
      <rect>
-      <x>280</x>
+      <x>290</x>
       <y>10</y>
       <width>211</width>
-      <height>41</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="font">
@@ -821,8 +821,14 @@
       <bold>true</bold>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">color :red;</string>
+    </property>
     <property name="text">
      <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <widget class="LCDNumber" name="lcdNumber">
@@ -928,17 +934,73 @@ text-align:right;
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
+   <widget class="QLabel" name="gameOverStatue">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>50</y>
+      <width>560</width>
+      <height>560</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>36</pointsize>
+      <weight>75</weight>
+      <italic>true</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color :red;
+background-color:AliceBlue;
+
+</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="timerNotif">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>140</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>16</pointsize>
+      <weight>75</weight>
+      <italic>true</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
    <zorder>label</zorder>
    <zorder>message</zorder>
    <zorder>lcdNumber</zorder>
-   <zorder>player1Rok1</zorder>
-   <zorder>player1Horse1</zorder>
+   <zorder>player1Rock1</zorder>
+   <zorder>player1Knight1</zorder>
    <zorder>player1Bishop1</zorder>
    <zorder>player1Queen</zorder>
    <zorder>player1King</zorder>
    <zorder>player1Bishop2</zorder>
-   <zorder>player1Horse2</zorder>
-   <zorder>player1Rok2</zorder>
+   <zorder>player1Knight2</zorder>
+   <zorder>player1Rock2</zorder>
    <zorder>player1Pawn8</zorder>
    <zorder>player1Pawn7</zorder>
    <zorder>player1Pawn6</zorder>
@@ -948,9 +1010,9 @@ text-align:right;
    <zorder>player1Pawn2</zorder>
    <zorder>player1Pawn1</zorder>
    <zorder>player2Pawn1</zorder>
-   <zorder>player2Rok1</zorder>
+   <zorder>player2Rock1</zorder>
    <zorder>player2Pawn2</zorder>
-   <zorder>player2Horse1</zorder>
+   <zorder>player2Knight1</zorder>
    <zorder>player2Pawn3</zorder>
    <zorder>player2Bishop1</zorder>
    <zorder>player2Pawn4</zorder>
@@ -960,12 +1022,14 @@ text-align:right;
    <zorder>player2Pawn6</zorder>
    <zorder>player2Bishop2</zorder>
    <zorder>player2Pawn7</zorder>
-   <zorder>player2Horse2</zorder>
-   <zorder>player2Rok2</zorder>
+   <zorder>player2Knight2</zorder>
+   <zorder>player2Rock2</zorder>
    <zorder>player2Pawn8</zorder>
    <zorder>player1Info</zorder>
    <zorder>player2Info</zorder>
    <zorder>playerTurn</zorder>
+   <zorder>gameOverStatue</zorder>
+   <zorder>timerNotif</zorder>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

@@ -37,8 +37,39 @@ void board::paintEvent(QPainter& painter)
     }
     painter.drawRect(QRect(123,43,574,574));
 }
-
-void board::rokSugg(QPainter &painter,QPoint *T,QPoint *enemy, int pos)
+bool board::rockLimits(int x, int y, int pieceX, int pieceY, int p, QPoint *T)
+{
+    int minX=1000,minY=1000,maxX=0,maxY=0;
+    if(x == pieceX || y == pieceY){
+        for(int i=0;i<16;i++){
+            if(T[i].x() == x && i!=p){
+                if(y>pieceY){
+                    if(T[i].y() < minY && T[i].y() >pieceY)
+                        minY = T[i].y();
+                }
+                else
+                    if(T[i].y() > maxY && T[i].y() < pieceY)
+                        maxY = T[i].y();
+            }
+            if(T[i].y() == y && i!=p){
+                if(x>pieceX){
+                    if(T[i].x() < minX && T[i].x() >pieceX)
+                        minX = T[i].x();
+                }
+                else
+                    if(T[i].x() > maxX && T[i].x() < pieceX)
+                        maxX = T[i].x();
+            }
+        }
+    }
+    else
+        return false;
+    if(x<minX && y<minY && x>maxX && y>maxY)
+        return true;
+    else
+        return false;
+}
+void board::rokSugg(QPainter &painter,QPoint *T,QPoint *enemy, int pos,bool castling)
 {
     int minX=690,minY=610,maxX=60,maxY=-20;
     int pieceX = T[pos].x(),pieceY = T[pos].y();
@@ -95,6 +126,11 @@ void board::rokSugg(QPainter &painter,QPoint *T,QPoint *enemy, int pos)
             }
         }
     QBrush brush(Qt::red,Qt::Dense4Pattern);
+    if(castling){
+        if(rockLimits(T[4].x(),T[4].y(),pieceX,pieceY,-1,enemy) && rockLimits(T[4].x(),T[4].y(),pieceX,pieceY,4,T)){
+           painter.fillRect(QRect(T[4].x(),T[4].y(),70,70), brush);
+        }
+    }
     for(int i=pieceY;i<minY;i+=70)
         painter.fillRect(QRect(pieceX,i, 70, 70), brush);
     for(int i=pieceY;i>maxY;i-=70)
@@ -106,9 +142,10 @@ void board::rokSugg(QPainter &painter,QPoint *T,QPoint *enemy, int pos)
 
 }
 
-void board::kingSugg(QPainter &painter, QPoint *T, int pos)
+void board::kingSugg(QPainter &painter, QPoint *T,QPoint *enemy,int pos,bool castling)
 {
     int pieceX = T[pos].x(),pieceY = T[pos].y();
+    QBrush brush(Qt::red, Qt::Dense4Pattern);
     int x,y;
     bool test[9];
     for(int i=0;i<9;i++)
@@ -165,11 +202,19 @@ void board::kingSugg(QPainter &painter, QPoint *T, int pos)
             x = pieceX-70;
             y+=70;
         }
+
         if(test[i] == true){
-            QBrush brush(Qt::red, Qt::Dense4Pattern);
             painter.fillRect(QRect(x,y,70,70), brush);
         }
         x+=70;
+    }
+    if(castling){
+        if(rockLimits(pieceX,pieceY,T[0].x(),T[0].y(),-1,enemy) && rockLimits(pieceX,pieceY,T[0].x(),T[0].y(),4,T)){
+           painter.fillRect(QRect(T[0].x(),T[0].y(),70,70), brush);
+        }
+        if(rockLimits(pieceX,pieceY,T[7].x(),T[7].y(),4,enemy) && rockLimits(pieceX,pieceY,T[0].x(),T[0].y(),4,T)){
+           painter.fillRect(QRect(T[7].x(),T[7].y(),70,70), brush);
+        }
     }
 }
 
@@ -345,7 +390,6 @@ void board::bishopSugg(QPainter &painter, QPoint *T, QPoint *enemy, int pos)
                 }
             }
             }
-//    cout<<maxX1<<endl<<maxX2<<endl<<minX1<<endl<<minX2<<endl<<"LOL"<<endl;
     QBrush brush(Qt::red,Qt::Dense4Pattern);
     for(int i=pieceX,j=pieceY;i<minX1&&j<minY1;i+=70,j+=70)
         painter.fillRect(QRect(i,j,70, 70), brush);
@@ -469,7 +513,7 @@ void board::pawnSugg(QPainter &painter, QPoint *T, QPoint *enemy, int pos,bool t
     }
 
 }
-void board::suggestion(QPainter &painter,string sender,string *names,QPoint *T,QPoint *enemy,bool test,int *pawnProm,int enemyPawn)
+void board::suggestion(QPainter &painter,string sender,string *names,QPoint *T,QPoint *enemy,bool test,int *pawnProm,int enemyPawn,bool castling)
 {
     int i=0,j;
     while(i<16){
@@ -478,22 +522,23 @@ void board::suggestion(QPainter &painter,string sender,string *names,QPoint *T,Q
         i++;
    }
    j=i;
+   //testing if pawn was promoted
     if(i<16 && i>7){
         if(pawnProm[i-8] != -1)
             i = pawnProm[i-8];
     }
    int pieceY = T[i].y(),pieceX = T[i].x();
     if(i == 0 || i == 7)
-        rokSugg(painter,T,enemy,j);
+        rokSugg(painter,T,enemy,j,castling);
     else if(i == 4)
-        kingSugg(painter,T,j);
+        kingSugg(painter,T,enemy,j,castling);
     else if(i == 1 || i == 6)
         knightSugg(painter,T,i);
     else if(i == 2 || i == 5)
         bishopSugg(painter,T,enemy,j);
     else if( i == 3){
-        kingSugg(painter,T,j);
-        rokSugg(painter,T,enemy,j);
+        kingSugg(painter,T,enemy,j,castling);
+        rokSugg(painter,T,enemy,j,castling);
         bishopSugg(painter,T,enemy,j);
     }
     else

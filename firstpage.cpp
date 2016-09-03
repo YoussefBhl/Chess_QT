@@ -17,14 +17,20 @@ firstPage::~firstPage()
     delete ui;
 }
 
-void firstPage::on_pushButton_2_clicked()
+void firstPage::on_play_clicked()
 {
+    QRect geo;
     playWindow = new MainWindow;
-    playWindow->showNormal();
+    geo = this->geometry();
+    geo.setWidth(800);
+    geo.setHeight(650);
+    playWindow->setGeometry(geo);
+    playWindow->show();
+    connect(playWindow,SIGNAL(openingWindow()),this,SLOT(openingWindow()));
     this->hide();
 }
 
-void firstPage::on_pushButton_clicked()
+void firstPage::on_conf_clicked()
 {
     option = new optionPage;
     connect(option,SIGNAL(save_clicked()),this,SLOT(save_clicked()));
@@ -40,6 +46,12 @@ void firstPage::save_clicked()
     delete option;
     this->show();
 }
+
+void firstPage::openingWindow()
+{
+    delete playWindow;
+    this->show();
+}
 void firstPage::cancel_clicked()
 {
     option->hide();
@@ -47,3 +59,8 @@ void firstPage::cancel_clicked()
     this->show();
 }
 
+
+void firstPage::on_quit_clicked()
+{
+    this->close();
+}
