@@ -13,49 +13,122 @@
   <property name="windowTitle">
    <string>Chess Game</string>
   </property>
-  <widget class="QPushButton" name="conf">
+  <widget class="mouseEvent" name="play">
    <property name="geometry">
     <rect>
-     <x>260</x>
-     <y>290</y>
-     <width>300</width>
-     <height>70</height>
+     <x>320</x>
+     <y>170</y>
+     <width>211</width>
+     <height>61</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+     <pointsize>48</pointsize>
+     <weight>75</weight>
+     <italic>true</italic>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color : #ffbf00;
+</string>
+   </property>
    <property name="text">
-    <string>Config</string>
+    <string>PLAY</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QPushButton" name="play">
+  <widget class="mouseEvent" name="conf">
    <property name="geometry">
     <rect>
-     <x>260</x>
-     <y>220</y>
-     <width>300</width>
-     <height>70</height>
+     <x>320</x>
+     <y>250</y>
+     <width>211</width>
+     <height>61</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+     <pointsize>48</pointsize>
+     <weight>75</weight>
+     <italic>true</italic>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color:#ffbf00;</string>
+   </property>
    <property name="text">
-    <string>Play</string>
+    <string>CONF</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QPushButton" name="quit">
+  <widget class="mouseEvent" name="quit">
    <property name="geometry">
     <rect>
-     <x>260</x>
-     <y>360</y>
-     <width>300</width>
-     <height>70</height>
+     <x>320</x>
+     <y>330</y>
+     <width>211</width>
+     <height>61</height>
     </rect>
    </property>
-   <property name="focusPolicy">
-    <enum>Qt::StrongFocus</enum>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+     <pointsize>48</pointsize>
+     <weight>75</weight>
+     <italic>true</italic>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color:#ffbf00;</string>
    </property>
    <property name="text">
-    <string>Quit</string>
+    <string>QUIT</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>690</x>
+     <y>540</y>
+     <width>181</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+     <pointsize>16</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">color:#ffbf00;
+</string>
+   </property>
+   <property name="text">
+    <string>Haj Ltaief Youssef</string>
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>mouseEvent</class>
+   <extends>QLabel</extends>
+   <header>mouseevent.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

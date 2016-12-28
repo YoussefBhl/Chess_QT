@@ -30,6 +30,7 @@ private:
     FILE *f;
     int min,sec,timerActive = 1;
     void piecePressed(string sender,player *p,player *enemyP);
+    void boardPressed(string sender,player *p,player *enemyP);
 private slots:
     void mousePressedBoard();
     void mousePressed();
@@ -37,8 +38,13 @@ private slots:
     void playersInfo();
     void playerTurnDisplay();
     void backTopeningWindow();
+    void on_back_clicked();
+
+    void on_quit_clicked();
+
 signals:
     void openingWindow();
+    void backButtom();
 };
 
 #endif // MAINWINDOW_H

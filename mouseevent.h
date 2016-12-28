@@ -11,10 +11,13 @@ class mouseEvent : public QLabel
 public:
     explicit mouseEvent(QWidget *parent = 0);
     void mousePressEvent(QMouseEvent *ev);
+    void enterEvent(QEvent *);
+    void leaveEvent(QEvent *);
     int x,y;
 signals:
     void mousePressed();
-
+    void cursorIn();
+    void cursorOut();
 public slots:
 };
 

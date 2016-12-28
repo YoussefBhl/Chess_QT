@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //player 1 & 2 set attribute
     p1->setPieces({ui->player1Rock1,ui->player1Knight1,ui->player1Bishop1,ui->player1Queen,ui->player1King,ui->player1Bishop2,ui->player1Knight2,ui->player1Rock2
              ,ui->player1Pawn1,ui->player1Pawn2,ui->player1Pawn3,ui->player1Pawn4,ui->player1Pawn5,ui->player1Pawn6,ui->player1Pawn7,ui->player1Pawn8});
-    p1->setPiecesName({"player1Rock1","player1Knight1","player1Bishop1","player1Queen","player1King","player1Bishop2","player1Knight2","player1rock2"
+    p1->setPiecesName({"player1Rock1","player1Knight1","player1Bishop1","player1Queen","player1King","player1Bishop2","player1Knight2","player1Rock2"
                  ,"player1Pawn1","player1Pawn2","player1Pawn3","player1Pawn4","player1Pawn5","player1Pawn6","player1Pawn7","player1Pawn8"});
     p1->setPiecesImage({player1rock,player1Knight,player1Bishop,player1Queen,player1King,player1Bishop,player1Knight,player1rock,player1Pawn});
     p1->setPiecesPosition();
@@ -59,13 +59,17 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->lcdNumber->startCountDown(min,sec);
         ui->lcdNumber->timer->stop();
     }
+    else{
+        delete ui->timerNotif;
+        delete ui->lcdNumber;
+    }
     //players info
     QTimer::singleShot(1000,this, SLOT(playersInfo()));
 
 }
 MainWindow::~MainWindow()
 {
-    p1->playerTurn = true;
+    p1->playerTurn = false;
     p1->KingDanger =false;
     p1->canCapture =false;
     p1->gameOver =false;
@@ -73,9 +77,8 @@ MainWindow::~MainWindow()
     delete p2;
     delete ui;
 }
-void MainWindow::paintEvent(QPaintEvent *e)
+void MainWindow::paintEvent(QPaintEvent *)
 {
-
   QPainter painter(this);
 
     board b;
@@ -88,12 +91,22 @@ void MainWindow::paintEvent(QPaintEvent *e)
     }
     if(timerActive){
         if(ui->lcdNumber->timeValue->toString() == QString("00:00:00")){  //if timeout then change palyer turn
+            ui->lcdNumber->timer->stop();
+            ui->lcdNumber->startCountDown(min,sec);
             p1->playerTurn = !p1->playerTurn;
+            if(p1->playerTurn){
+                ui->playerTurn->setText("Player 2");
+                ui->playerTurn->setStyleSheet("color:#ffbf00;background-color:AliceBlue;");
+            }
+            else{
+                ui->playerTurn->setText("Player 1");
+                ui->playerTurn->setStyleSheet("color:#d5d4cf;background-color:AliceBlue;");
+            }
+            ui->playerTurn->show();
             ui->lcdNumber->timer->stop();
             QTimer::singleShot(1000,this, SLOT(playerTurnDisplay()));
         }
     }
-
 }
 
 void MainWindow::piecePressed(string senderObj, player *p,player *enemyP)
@@ -125,21 +138,26 @@ void MainWindow::piecePressed(string senderObj, player *p,player *enemyP)
         if(p->pawnProm[cpId-8] != -1)
             id = p->pawnProm[cpId-8];
     }
-
     if(capture){
         while(j<16){
             if(senderObj == enemyP->piecesName[j]){
-                p->capturePiece(enemyP->piecesPosition[j].x(),enemyP->piecesPosition[j].y(),p->pieces[cpId],id,enemyP->piecesPosition,j,cpId);
+                p->capturePiece(enemyP->piecesPosition[j].x(),enemyP->piecesPosition[j].y(),p->pieces[cpId],id,enemyP->piecesPosition,j,cpId,enemyP->pawnProm);
                 capture = false;
                 cpId = 0;
                 if(p->canCapture){
                     delete enemyP->pieces[j];
                     enemyP->piecesPosition[j] = QPoint(0,0);
+                    if(enemyP->piecesPosition[4] == QPoint(0,0))
+                        p->gameOver = true;
                     p->canCapture = false;
-                    if(p->playerTurn)
-                        ui->playerTurn->setText("Player 1");
-                    else
+                    if(p->playerTurn){
                         ui->playerTurn->setText("Player 2");
+                        ui->playerTurn->setStyleSheet("color:#ffbf00;background-color:AliceBlue;");
+                    }
+                    else{
+                        ui->playerTurn->setText("Player 1");
+                        ui->playerTurn->setStyleSheet("color:#d5d4cf;background-color:AliceBlue;");
+                    }
                     ui->playerTurn->show();
                     //count Down
                     if(timerActive){
@@ -167,6 +185,60 @@ void MainWindow::piecePressed(string senderObj, player *p,player *enemyP)
             }
         }
     }
+    else{
+        if(cpId == 16)
+            cpId = 0;
+    }
+}
+
+void MainWindow::boardPressed(string sender, player *p, player *enemyP)
+{
+    int i=0,j;
+    bool restartCount = false;
+    p->pawnEnPassant = -1;
+    while(i<16){
+        if(p->piecesName[i] == senderObj){
+            j = i;
+            break;
+        }
+        else
+            i++;
+    }
+    if(i<16 && i>7){
+        if(p->pawnProm[i-8] != -1){
+            j = p->pawnProm[i-8];
+            p->mouvePiece(ui->label->x,ui->label->y,p->pieces[i],j,enemyP->piecesPosition,i,enemyP->pawnProm);
+            restartCount = true;
+        }
+        else{
+            p->mouvePawn(ui->label->x,ui->label->y,p->pieces[i],i,enemyP->piecesPosition,enemyP->pawnEnPassant,enemyP->pawnProm);
+            //en passant
+            if(p->canCapture){
+                delete enemyP->pieces[enemyP->pawnEnPassant];
+                enemyP->piecesPosition[enemyP->pawnEnPassant] = QPoint(0,0);
+            }
+            restartCount = true;
+        }
+    }
+    else if(i<8){
+     p->mouvePiece(ui->label->x,ui->label->y,p->pieces[i],j,enemyP->piecesPosition,i,enemyP->pawnProm);
+     restartCount = true;
+    }
+    if(restartCount){
+        //count down
+        if(timerActive)
+            ui->lcdNumber->timer->stop();
+        if(p->playerTurn){
+            ui->playerTurn->setText("Player 2");
+            ui->playerTurn->setStyleSheet("color:#ffbf00;background-color:AliceBlue;");
+        }
+        else{
+            ui->playerTurn->setText("Player 1");
+            ui->playerTurn->setStyleSheet("color:#d5d4cf;background-color:AliceBlue;");
+        }
+        ui->playerTurn->show();
+        QTimer::singleShot(1000,this, SLOT(playerTurnDisplay()));
+    }
 }
 
 void MainWindow::playerTurnDisplay()
@@ -183,80 +255,12 @@ void MainWindow::backTopeningWindow()
 
 void MainWindow::mousePressedBoard()
 {
-    int i=0,j;
-    bool restartCount = false;
     //first player move
-        if(p1->playerTurn){
-            p1->pawnEnPassant = -1;
-            while(i<16){
-                if(p1->piecesName[i] == senderObj){
-                    j = i;
-                    break;
-                }
-                else
-                    i++;
-            }
-            if(i<16 && i>7){
-                if(p1->pawnProm[i-8] != -1){
-                    j = p1->pawnProm[i-8];
-                    p1->mouvePiece(ui->label->x,ui->label->y,p1->pieces[i],j,p2->piecesPosition,i);
-                }
-                else{
-                    p1->mouvePawn(ui->label->x,ui->label->y,p1->pieces[i],j,i,p2->piecesPosition,p2->pawnEnPassant);
-                    //en passant
-                    if(p1->canCapture){
-                        delete p2->pieces[p2->pawnEnPassant];
-                        p2->piecesPosition[p2->pawnEnPassant] = QPoint(0,0);
-                    }
-                    restartCount = true;
-                }
-            }
-            else{
-             p1->mouvePiece(ui->label->x,ui->label->y,p1->pieces[i],j,p2->piecesPosition,i);
-             restartCount = true;
-            }
+    if(p1->playerTurn){
+        boardPressed(senderObj,p1,p2);
     }
-        else{
-            p2->pawnEnPassant = -1;
-            while(i<16){
-                if(p2->piecesName[i] == senderObj){
-                    j = i;
-                    break;
-                }
-                else
-                    i++;
-            }
-            if(i<16 && i>7){
-                if(p1->pawnProm[i-8] != -1){
-                    j = p2->pawnProm[i-8];
-                    p2->mouvePiece(ui->label->x,ui->label->y,p2->pieces[i],j,p1->piecesPosition,i);
-                }
-                else{
-                    p2->mouvePawn(ui->label->x,ui->label->y,p2->pieces[i],j,i,p1->piecesPosition,p1->pawnEnPassant);
-                    restartCount = true;
-                    //EN PASSENT
-                    if(p2->canCapture){
-                        delete p1->pieces[p1->pawnEnPassant];
-                        p1->piecesPosition[p1->pawnEnPassant] = QPoint(0,0);
-                    }
-                    restartCount = true;
-                }
-            }
-            else{
-                p2->mouvePiece(ui->label->x,ui->label->y,p2->pieces[i],j,p1->piecesPosition,i);
-                restartCount = true;
-            }
-       }
-        if(p1->playerTurn)
-            ui->playerTurn->setText("Player 1");
-        else
-            ui->playerTurn->setText("Player 2");
-    if(restartCount){
-        //count down
-        if(timerActive)
-            ui->lcdNumber->timer->stop();
-        ui->playerTurn->show();
-        QTimer::singleShot(1000,this, SLOT(playerTurnDisplay()));
+    else{
+        boardPressed(senderObj,p2,p1);
     }
     cpId = 0;
     id = 0;
@@ -270,14 +274,18 @@ void MainWindow::mousePressedBoard()
 
     }
     if(p1->gameOver){
-        ui->gameOverStatue->show();
         QString s = "GAME OVER";
-        if(p1->playerTurn)
+        if(!p1->playerTurn){
             s += "\n\n\n PLAYER 1 Win";
-        else
+            ui->gameOverStatue->setStyleSheet("color:#d5d4cf;background-color:AliceBlue;");
+        }
+        else{
             s += "\n\n\n PLAYER 2 Win";
+            ui->gameOverStatue->setStyleSheet("color:#ffbf00;background-color:AliceBlue;");
+        }
         ui->gameOverStatue->setText(s);
-        QTimer::singleShot(1000,this, SLOT(backTopeningWindow()));
+        ui->gameOverStatue->show();
+        QTimer::singleShot(2000,this, SLOT(backTopeningWindow()));
     }
     this->update();
 
@@ -298,14 +306,17 @@ void MainWindow::mousePressed()
         ui->message->setText("");
     segg = !segg;
     if(p1->gameOver){
-        ui->gameOverStatue->show();
         QString s = "GAME OVER";
-        if(p1->playerTurn)
+        if(!p1->playerTurn){
             s += "\n\n\n PLAYER 1 Win";
-        else
+            ui->gameOverStatue->setStyleSheet("color:#d5d4cf;background-color:AliceBlue;");
+        }
+        else{
             s += "\n\n\n PLAYER 2 Win";
+            ui->gameOverStatue->setStyleSheet("color:#ffbf00;background-color:AliceBlue;");
+        }
         ui->gameOverStatue->setText(s);
-
+        ui->gameOverStatue->show();
         QTimer::singleShot(1000,this, SLOT(backTopeningWindow()));
     }
     this->update();
@@ -325,3 +336,13 @@ void MainWindow::playersInfo()
 }
 
 
+
+void MainWindow::on_back_clicked()
+{
+    emit backButtom();
+}
+
+void MainWindow::on_quit_clicked()
+{
+    this->close();
+}

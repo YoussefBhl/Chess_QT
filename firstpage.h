@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "mainwindow.h"
 #include "optionpage.h"
+#include "mouseevent.h"
 namespace Ui {
 class firstPage;
 }
@@ -17,13 +18,13 @@ public:
     ~firstPage();
     bool quit = false;
 private slots:
-    void on_play_clicked();
-    void on_conf_clicked();
     void save_clicked();
     void openingWindow();
     void cancel_clicked();
-    void on_quit_clicked();
-
+    void cursorIn();
+    void cursorOut();
+    void mousePressed();
+    void backButtom(); // play window
 private:
     Ui::firstPage *ui;
     MainWindow *playWindow;

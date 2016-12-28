@@ -860,13 +860,12 @@
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">color :red;
+     <string notr="true">color :#ffbf00;
 background-color:AliceBlue;
-text-align:right;
 </string>
     </property>
     <property name="text">
-     <string>Player 1</string>
+     <string>Player 2</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -891,13 +890,12 @@ text-align:right;
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">color :red;
+     <string notr="true">color :#d5d4cf;
 background-color:AliceBlue;
-text-align:right;
 </string>
     </property>
     <property name="text">
-     <string>Player 2</string>
+     <string>Player 1</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -922,9 +920,8 @@ text-align:right;
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">color :red;
+     <string notr="true">color :#d5d4cf;
 background-color:AliceBlue;
-text-align:right;
 </string>
     </property>
     <property name="text">
@@ -990,6 +987,32 @@ background-color:AliceBlue;
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
+   <widget class="QPushButton" name="back">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>550</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Back</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="quit">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>580</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Quit</string>
+    </property>
+   </widget>
    <zorder>label</zorder>
    <zorder>message</zorder>
    <zorder>lcdNumber</zorder>
@@ -1030,6 +1053,8 @@ background-color:AliceBlue;
    <zorder>playerTurn</zorder>
    <zorder>gameOverStatue</zorder>
    <zorder>timerNotif</zorder>
+   <zorder>back</zorder>
+   <zorder>quit</zorder>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

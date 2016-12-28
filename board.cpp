@@ -128,7 +128,7 @@ void board::rokSugg(QPainter &painter,QPoint *T,QPoint *enemy, int pos,bool cast
     QBrush brush(Qt::red,Qt::Dense4Pattern);
     if(castling){
         if(rockLimits(T[4].x(),T[4].y(),pieceX,pieceY,-1,enemy) && rockLimits(T[4].x(),T[4].y(),pieceX,pieceY,4,T)){
-           painter.fillRect(QRect(T[4].x(),T[4].y(),70,70), brush);
+           painter.fillRect(QRect(T[4].x(),T[4].y(),70,70),brush);
         }
     }
     for(int i=pieceY;i<minY;i+=70)
@@ -412,12 +412,12 @@ void board::pawnSugg(QPainter &painter, QPoint *T, QPoint *enemy, int pos,bool t
         capture[i]=false;
     }
     QBrush brush(Qt::red,Qt::Dense4Pattern);
-    painter.fillRect(QRect(pieceX,pieceY,70, 70), brush);
+    painter.fillRect(QRect(pieceX,pieceY,70, 70),brush);
     for(int i=0;i<16;i++){
         x = T[i].x();y = T[i].y();
         xE = enemy[i].x();yE = enemy[i].y();
             if(test){
-                if(x == pieceX ){
+                if(x == pieceX ){ //pawn first mouve
                     if(pieceY == 120){
                         if(y == 260)
                             draw[1] = false;
@@ -433,7 +433,7 @@ void board::pawnSugg(QPainter &painter, QPoint *T, QPoint *enemy, int pos,bool t
                     else
                         draw[1] = false;
                 }
-                if(yE-70 == pieceY && xE == pieceX)
+                if(yE-70 == pieceY && xE == pieceX)//pawn can capture a piece
                         draw[0] = false;
                 else if(yE -70 == pieceY){
                     if(pieceX +70 == xE)
@@ -461,17 +461,17 @@ void board::pawnSugg(QPainter &painter, QPoint *T, QPoint *enemy, int pos,bool t
             }
             if(yE+70 == pieceY && xE == pieceX)
                 draw[0] = false;
-            else if(yE -70 == pieceY){
-                if(pieceX +70 == xE)
+            else if(yE+70 == pieceY){
+                if(pieceX+70 == xE)
                    capture[0]=true;
-             else if(pieceX -70 == xE)
+             else if(pieceX-70 == xE)
                    capture[1] = true;
                 }
             }
 
         }
         if(test){
-            if(enemyPawn != -1){
+            if(enemyPawn != -1){//en pasant
                 if(enemy[enemyPawn].y() == pieceY){
                     if(enemy[enemyPawn].x() == pieceX+70)
                         capture[0]=true;
@@ -527,21 +527,20 @@ void board::suggestion(QPainter &painter,string sender,string *names,QPoint *T,Q
         if(pawnProm[i-8] != -1)
             i = pawnProm[i-8];
     }
-   int pieceY = T[i].y(),pieceX = T[i].x();
     if(i == 0 || i == 7)
         rokSugg(painter,T,enemy,j,castling);
     else if(i == 4)
         kingSugg(painter,T,enemy,j,castling);
     else if(i == 1 || i == 6)
-        knightSugg(painter,T,i);
+        knightSugg(painter,T,j);
     else if(i == 2 || i == 5)
         bishopSugg(painter,T,enemy,j);
     else if( i == 3){
-        kingSugg(painter,T,enemy,j,castling);
-        rokSugg(painter,T,enemy,j,castling);
+        kingSugg(painter,T,enemy,j,false);
+        rokSugg(painter,T,enemy,j,false);
         bishopSugg(painter,T,enemy,j);
     }
-    else
+    else if (i>7 && i<16)
         pawnSugg(painter,T,enemy,j,test,enemyPawn);
 
 }

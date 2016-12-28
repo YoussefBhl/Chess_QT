@@ -16,14 +16,14 @@ promotion::~promotion()
 void promotion::setSugg(bool playerTurn)
 {
     if(playerTurn){
-        rock = QPixmap(":/images/images/player1Rok.png");
-        knight = QPixmap(":/images/images/player1Horse.png");
+        rock = QPixmap(":/images/images/player1Rock.png");
+        knight = QPixmap(":/images/images/player1Knight.png");
         bishop = QPixmap(":/images/images/player1Bishop.png");
         queen = QPixmap(":/images/images/player1Queen.png");
     }
     else{
-        rock = QPixmap(":/images/images/player2Rok.png");
-        knight = QPixmap(":/images/images/player2Horse.png");
+        rock = QPixmap(":/images/images/player2Rock.png");
+        knight = QPixmap(":/images/images/player2Knight.png");
         bishop = QPixmap(":/images/images/player2Bishop.png");
         queen = QPixmap(":/images/images/player2Queen.png");
     }

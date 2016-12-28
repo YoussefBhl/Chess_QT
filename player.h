@@ -28,9 +28,9 @@ public:
     void setPieces(std::initializer_list<QLabel *> argv);   //set pieces into table
     void setPiecesPosition(); //set pieces' posotion
     void setPiecesImage(std::initializer_list<QPixmap> argv);   // set pieces pictures
-    void capturePiece(int x, int y,QLabel *piece,int pos,QPoint *,int,int);
-    void mouvePiece(int x, int y,QLabel *piece,int pos,QPoint *T,int cpId);
-    void mouvePawn(int x, int y,QLabel *piece,int pos,int cpId,QPoint *enemy,int enemyPawn);
+    void capturePiece(int x, int y,QLabel *piece,int pos,QPoint *,int,int,int*);
+    void mouvePiece(int x, int y,QLabel *piece,int pos,QPoint *T,int cpId,int*);
+    void mouvePawn(int x, int y,QLabel *piece,int cpId,QPoint *enemy,int enemyPawn,int*);
     bool rockLimits(int x, int y,int pieceX, int pieceY,int p, QPoint *T);
     bool bishopLimits(int x, int y, int pieceX, int pieceY,int p, QPoint *T);
     bool queenLimits(int x, int y, int pieceX, int pieceY,int p, QPoint *T,int i);
@@ -38,11 +38,16 @@ public:
     bool knightLimits(int,int,int,int);
     bool pawnLimits(int x, int y, int pieceX, int pieceY,int p,QPoint *enemy, int enemyPawn);
     bool pawnCapture(int x, int y, int pieceX, int pieceY);
-    bool kingReset(int pieceX, int pieceY,QPoint *T,int);
+    bool pawnCaptureKing(int x, int y, int pieceX, int pieceY);
+    bool kingReset(int pieceX, int pieceY,QPoint *T,int,int *);
     bool enemyKingCanBeCaptured(int pieceX, int pieceY,QPoint *T,int);
     int KingWarning(QPoint* T);
-    bool gameOver_1(QPoint enemyKing,QPoint *enemy,int);
-    bool gameOver_2(QPoint *enemy);
+    bool intersection(int,QPoint*,int *);
+    bool rockIntersection(int pieceX,int pieceY,int enemykingX,int enemykingY,QPoint*,int *enemyPawnProm);
+    bool bishopIntersection(int pieceX,int pieceY,int enemykingX,int enemykingY,QPoint*,int *enemyPawnProm);
+    bool gameOver_1(QPoint enemyKing,QPoint *enemy,int,int *); //if king's Trapped
+    bool gameOver_2(QPoint *enemy,int *); // all pieces're captured except king & can't mouve it
+    void pawnPromotion();
     string piecesName[16];
     QLabel *pieces[16];
     QPoint  piecesPosition[16];
@@ -60,10 +65,11 @@ public:
     bool rockFirstMouve0 = false;
     bool rockFirstMouve7 = false;
     bool kingNeverChecked = true;
-    bool castling(QPoint *enemy,int id,int k);
+    void castling(QPoint *enemy,int id,int k);
 private:
      promotion *pr;
-     void pawnPromotion();
+     bool pieceCanCaptured(int pieceX, int pieceY,QPoint *T,int,int *);
+
 signals:
 
 public slots:

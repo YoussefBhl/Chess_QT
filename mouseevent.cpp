@@ -6,8 +6,17 @@ mouseEvent::mouseEvent(QWidget *parent) : QLabel(parent)
 
 }
 
-void mouseEvent::mousePressEvent(QMouseEvent *e)
+void mouseEvent::mousePressEvent(QMouseEvent *)
 {
-
     emit mousePressed();
+}
+
+void mouseEvent::enterEvent(QEvent *)
+{
+    emit cursorIn();
+}
+
+void mouseEvent::leaveEvent(QEvent *)
+{
+    emit cursorOut();
 }
